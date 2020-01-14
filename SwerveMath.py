@@ -1,13 +1,12 @@
 import numpy
 import sched, time
 from graphics import *
-import ctypes
 
 
 WHEEL_LENGTH_PIX = 16
 WHEEL_WIDTH_PIX = 4
 WHEEL_DIST_FROM_CENTER = 85
-MAX_SPEED = 400  # in pixels/s
+MAX_SPEED = 600  # in pixels/s
 
 UPDATE_TIME = .02  # in seconds
 
@@ -15,9 +14,11 @@ cur_robot_rot = 0  # in degrees
 cur_robot_pos_x = 70
 cur_robot_pos_y = 500
 
+# Initialization points for mid-lines between wheels
 midline1 = Line(Point(0, 0), Point(0, 0))
 midline2 = Line(Point(0, 0), Point(0, 0))
 
+# Screen size
 SCREEN_X = 1270
 SCREEN_Y = 630
 
@@ -47,7 +48,7 @@ class Wheel:
 
     def draw_wheels(self, window):
         theta = numpy.arctan2(-self.rot_y_def, self.rot_x_def) + cur_robot_rot
-        self.line.undraw()
+        #self.line.undraw()
         self.line = Line(Point((cur_robot_pos_x + WHEEL_DIST_FROM_CENTER * numpy.sin(theta) -
                                WHEEL_LENGTH_PIX / 2 * numpy.sin(self.ang)) % (SCREEN_X + WHEEL_LENGTH_PIX),
                                (cur_robot_pos_y - WHEEL_DIST_FROM_CENTER * numpy.cos(theta) +

@@ -1,19 +1,25 @@
 import numpy
 import sched, time
 from graphics import *
+import ctypes
 
-WHEEL_LENGTH_PIX = 20
-WHEEL_DIST_FROM_CENTER = 60
-MAX_SPEED = 300  # in pixels/s
 
-UPDATE_TIME = .05  # in seconds
+WHEEL_LENGTH_PIX = 16
+WHEEL_WIDTH_PIX = 4
+WHEEL_DIST_FROM_CENTER = 85
+MAX_SPEED = 400  # in pixels/s
+
+UPDATE_TIME = .02  # in seconds
 
 cur_robot_rot = 0  # in degrees
 cur_robot_pos_x = 70
 cur_robot_pos_y = 500
 
-SCREEN_X = 1100
-SCREEN_Y = 600
+midline1 = Line(Point(0, 0), Point(0, 0))
+midline2 = Line(Point(0, 0), Point(0, 0))
+
+SCREEN_X = 1270
+SCREEN_Y = 630
 
 
 class Wheel:
@@ -43,15 +49,17 @@ class Wheel:
         theta = numpy.arctan2(-self.rot_y_def, self.rot_x_def) + cur_robot_rot
         self.line.undraw()
         self.line = Line(Point((cur_robot_pos_x + WHEEL_DIST_FROM_CENTER * numpy.sin(theta) -
-                               WHEEL_LENGTH_PIX / 2 * numpy.sin(self.ang)) % SCREEN_X,
+                               WHEEL_LENGTH_PIX / 2 * numpy.sin(self.ang)) % (SCREEN_X + WHEEL_LENGTH_PIX),
                                (cur_robot_pos_y - WHEEL_DIST_FROM_CENTER * numpy.cos(theta) +
-                               WHEEL_LENGTH_PIX / 2 * numpy.cos(self.ang)) % SCREEN_Y),
-                          Point((cur_robot_pos_x + WHEEL_DIST_FROM_CENTER * numpy.sin(theta) +
-                                WHEEL_LENGTH_PIX / 2 * numpy.sin(self.ang)) % SCREEN_X,
+                               WHEEL_LENGTH_PIX / 2 * numpy.cos(self.ang)) % (SCREEN_Y + WHEEL_LENGTH_PIX)),
+                         Point((cur_robot_pos_x + WHEEL_DIST_FROM_CENTER * numpy.sin(theta) +
+                                WHEEL_LENGTH_PIX / 2 * numpy.sin(self.ang)) % (SCREEN_X + WHEEL_LENGTH_PIX),
                                 (cur_robot_pos_y - WHEEL_DIST_FROM_CENTER * numpy.cos(theta) -
-                                WHEEL_LENGTH_PIX / 2 * numpy.cos(self.ang)) % SCREEN_Y))
-        #self.line.undraw()
-        self.line.draw(window)
+                                WHEEL_LENGTH_PIX / 2 * numpy.cos(self.ang)) % (SCREEN_Y + WHEEL_LENGTH_PIX)))
+        self.line.setWidth(WHEEL_WIDTH_PIX)
+        if not(self.line.getP1().x >= SCREEN_X or self.line.getP1().y >= SCREEN_Y or
+                self.line.getP2().x >= SCREEN_X or self.line.getP2().y >= SCREEN_Y):
+            self.line.draw(window)
 
 
 # Create 4 wheels (rot_x_default, rot_y_default)
@@ -98,10 +106,21 @@ def update_robot_pos(max_percent):
         cur_robot_rot = cur_robot_rot - 2 * numpy.pi
 
 
+def draw_mid_lines():
+    global midline1, midline2
+    midline1.undraw()
+    midline1 = Line(wheels[0].line.getCenter(), wheels[3].line.getCenter())
+    midline1.draw(win)
+
+    midline2.undraw()
+    midline2 = Line(wheels[1].line.getCenter(), wheels[2].line.getCenter())
+    midline2.draw(win)
+
+
 # Joystick inputs
-x = eval(input("x coord: "))
-y = eval(input("y coord: "))
-rot = eval(input("rotation speed: "))
+x = eval(input("x percent: ")) / 100
+y = eval(input("y percent: ")) / 100
+rot = eval(input("rotation percent: ")) / 100
 
 set_wheel_from_joystick(x, y, rot)
 win = GraphWin("Swerve", SCREEN_X, SCREEN_Y)
@@ -115,6 +134,7 @@ def main(sc):
     update_robot_pos(max_pcnt)
     for wheel in wheels:
         wheel.draw_wheels(win)
+    #draw_mid_lines()
     s.enter(UPDATE_TIME, 1, main, (sc,))
 
 

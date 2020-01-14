@@ -48,7 +48,7 @@ class Wheel:
 
     def draw_wheels(self, window):
         theta = numpy.arctan2(-self.rot_y_def, self.rot_x_def) + cur_robot_rot
-        #self.line.undraw()
+        self.line.undraw()
         self.line = Line(Point((cur_robot_pos_x + WHEEL_DIST_FROM_CENTER * numpy.sin(theta) -
                                WHEEL_LENGTH_PIX / 2 * numpy.sin(self.ang)) % (SCREEN_X + WHEEL_LENGTH_PIX),
                                (cur_robot_pos_y - WHEEL_DIST_FROM_CENTER * numpy.cos(theta) +
